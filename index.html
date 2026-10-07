@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>투자 계산기 - 평단가·복리·이자 계산</title>
+<meta name="description" content="주식·코인 평단가(가중평균 매입단가), 복리 계산, 이자 계산을 한 곳에서. 분할매수 평균단가를 실시간으로 계산합니다.">
+<meta name="keywords" content="평단가 계산기, 평균단가, 주식 평단가, 코인 평단가, 복리 계산기, 이자 계산기, 가중평균 매입단가, 분할매수">
+<meta name="author" content="투자 계산기">
+<meta property="og:title" content="투자 계산기 - 평단가·복리·이자 계산">
+<meta property="og:description" content="평단가, 복리, 이자를 한 곳에서 계산하세요.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://zozeroin.github.io/Investment-calculator/">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,400&display=swap">
+
+<!-- Google AdSense (승인 후 아래 코드 교체) -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+<style>
+:root {
+  --bg:           #09090C;
+  --surface:      #111116;
+  --surface-2:    #17171D;
+  --border:       #22222E;
+  --text:         #E6E6F0;
+  --text-sub:     #A0A0B8;
+  --text-muted:   #545468;
+  --accent:       #6365F1;
+  --accent-2:     #8B5CF6;
+  --accent-soft:  rgba(99,101,241,.11);
+  --accent-glow:  rgba(99,101,241,.22);
+  --danger:       #F87171;
+  --danger-soft:  rgba(248,113,113,.10);
+  --success:      #34D399;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:           #F3F3F8;
+    --surface:      #FFFFFF;
+    --surface-2:    #EEEEF4;
+    --border:       #E0E0EC;
+    --text:         #10101A;
+    --text-sub:     #606078;
+    --text-muted:   #9090A8;
+    --accent:       #5355E0;
+    --accent-2:     #7C3AED;
+    --accent-soft:  rgba(83,85,224,.09);
+    --accent-glow:  rgba(83,85,224,.18);
+    --danger:       #EF4444;
+    --danger-soft:  rgba(239,68,68,.09);
+    --success:      #059669;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:           #F3F3F8;
+  --surface:      #FFFFFF;
+  --surface-2:    #EEEEF4;
+  --border:       #E0E0EC;
+  --text:         #10101A;
+  --text-sub:     #606078;
+  --text-muted:   #9090A8;
+  --accent:       #5355E0;
+  --accent-2:     #7C3AED;
+  --accent-soft:  rgba(83,85,224,.09);
+  --accent-glow:  rgba(83,85,224,.18);
+  --danger:       #EF4444;
+  --danger-soft:  rgba(239,68,68,.09);
+  --success:      #059669;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding-inline: 16px;
+  padding-block: 44px 72px;
+}
+
+.wrap {
+  max-width: 620px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 광고 영역 */
+.ad-slot {
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-hd { margin-bottom: 4px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(99,101,241,.22);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 13px;
+}
+
+h1 {
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.sub {
+  font-size: 13.5px;
+  color: var(--text-sub);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+.tabs {
+  display: flex;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background .15s, color .15s, box-shadow .15s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover:not(.active) { color: var(--text-sub); }
+
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(0,0,0,.18);
+}
+
+.tab-btn svg { flex-shrink: 0; }
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeUp .18s ease;
+}
+
+.panel.hidden { display: none; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.inp {
+  width: 100%;
+  min-width: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 14px;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  outline: none;
+  transition: border-color .14s, box-shadow .14s;
+  -webkit-appearance: none;
+}
+
+.inp::placeholder { color: var(--text-muted); }
+
+.inp:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+select.inp {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5l3.5 3.5 3.5-3.5' stroke='%23545468' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.stat.primary {
+  border-color: rgba(99,101,241,.28);
+  background: linear-gradient(145deg, var(--surface) 55%, rgba(99,101,241,.05) 100%);
+}
+
+.stat-lbl {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.stat-val {
+  font-size: 21px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.025em;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.stat.primary .stat-val {
+  background: linear-gradient(130deg, var(--accent) 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat.primary .stat-val.empty {
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: var(--text-muted);
+  background-clip: unset;
+  color: var(--text-muted);
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.stat-val.empty { color: var(--text-muted); font-size: 18px; font-weight: 400; }
+
+.stat-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.card-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr 36px;
+  gap: 8px;
+  padding: 10px 14px 9px;
+  border-bottom: 1px solid var(--border);
+}
+
+.col-lbl {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.entries {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 36px;
+  gap: 8px;
+  align-items: center;
+  animation: rowIn .14s ease;
+}
+
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.btn-del {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .12s, color .12s;
+}
+
+.btn-del:hover { background: var(--danger-soft); color: var(--danger); }
+
+.formula {
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.formula code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-family: 'SFMono-Regular', 'Fira Code', monospace;
+  color: var(--accent);
+}
+
+.card-foot {
+  padding: 9px 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+
+.btn-add:hover { background: var(--surface-2); color: var(--text); }
+
+.spacer { flex: 1; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+
+.btn-ghost:hover { background: var(--danger-soft); color: var(--danger); }
+
+.form-body {
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field.span-2 { grid-column: 1 / -1; }
+
+.field-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.period-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.period-row .inp { flex: 1; }
+
+.period-unit {
+  font-size: 13px;
+  color: var(--text-sub);
+  white-space: nowrap;
+}
+
+.chart-wrap {
+  padding: 4px 14px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.chart-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 0 6px;
+}
+
+#cp-chart {
+  width: 100%;
+  height: 140px;
+  display: block;
+}
+
+.stats-4 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.stats-4 .stat.primary { grid-column: 1 / -1; }
+
+@media (max-width: 500px) {
+  body { padding-block: 28px 56px; }
+  h1   { font-size: 20px; }
+  .tab-btn { font-size: 12px; padding: 8px 6px; }
+  .stats, .stats-4 { grid-template-columns: 1fr 1fr; }
+  .stats .stat.primary,
+  .stats-4 .stat.primary { grid-column: 1 / -1; }
+  .stat-val { font-size: 19px; }
+  .form-body { grid-template-columns: 1fr; }
+  .field.span-2 { grid-column: unset; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="app-hd">
+    <div class="badge">투자 도구</div>
+    <h1>투자계산기</h1>
+    <p class="sub">평단가 · 복리 · 이자를 한 곳에서 계산하세요.</p>
+  </header>
+
+  <!-- 광고 슬롯 상단 -->
+  <div class="ad-slot" id="ad-top">
+    <!-- 광고 코드 삽입 위치 -->
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="계산기 선택">
+    <button class="tab-btn active" data-tab="avg" role="tab" aria-selected="true">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M2 11L5 7l3 2.5L11 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      평단가
+    </button>
+    <button class="tab-btn" data-tab="compound" role="tab" aria-selected="false">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M1.5 12C2 9 4 7 6 6s4-1 5-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="10.5" cy="4" r="1.5" fill="currentColor"/>
+      </svg>
+      복리
+    </button>
+    <button class="tab-btn" data-tab="interest" role="tab" aria-selected="false">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <rect x="1.5" y="3.5" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M5 7h4M5 9.5h2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M1.5 6h11" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      이자
+    </button>
+  </nav>
+
+  <!-- 평단가 패널 -->
+  <div class="panel" id="panel-avg" role="tabpanel">
+    <div class="card">
+      <div class="card-head">
+        <span class="col-lbl">매수 단가</span>
+        <span class="col-lbl">수량</span>
+        <span></span>
+      </div>
+      <div class="entries" id="avg-entries"></div>
+      <div class="formula">
+        평균단가 &nbsp;=&nbsp; <code>총 투자금액</code> ÷ <code>총 수량</code>
+      </div>
+      <div class="card-foot">
+        <button class="btn-add" onclick="avgAddRow()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            <path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          매수 내역 추가
+        </button>
+        <span class="spacer"></span>
+        <button class="btn-ghost" onclick="avgReset()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M1.5 6a4.5 4.5 0 1 0 1.1-2.9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M1.5 2v2.5H4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          초기화
+        </button>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat primary">
+        <div class="stat-lbl">평균 단가</div>
+        <div class="stat-val" id="avg-v-avg">—</div>
+        <div class="stat-note">가중평균 매입단가</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">총 투자금액</div>
+        <div class="stat-val" id="avg-v-total">—</div>
+        <div class="stat-note">단가 × 수량 합계</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">총 수량</div>
+        <div class="stat-val" id="avg-v-qty">—</div>
+        <div class="stat-note">전체 매수 수량</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 복리 패널 -->
+  <div class="panel hidden" id="panel-compound" role="tabpanel">
+    <div class="card">
+      <div class="form-body">
+        <div class="field">
+          <label class="field-lbl" for="cp-principal">원금</label>
+          <input class="inp" id="cp-principal" type="text" inputmode="decimal" placeholder="₩ 원금">
+        </div>
+        <div class="field">
+          <label class="field-lbl" for="cp-rate">연이율 (%)</label>
+          <input class="inp" id="cp-rate" type="text" inputmode="decimal" placeholder="예: 7">
+        </div>
+        <div class="field">
+          <label class="field-lbl" for="cp-years">투자 기간 (년)</label>
+          <input class="inp" id="cp-years" type="text" inputmode="decimal" placeholder="예: 20">
+        </div>
+        <div class="field">
+          <label class="field-lbl" for="cp-freq">복리 주기</label>
+          <select class="inp" id="cp-freq">
+            <option value="1">연 1회 (연복리)</option>
+            <option value="2">반기 2회</option>
+            <option value="4">분기 4회</option>
+            <option value="12" selected>월 12회</option>
+            <option value="365">일 365회</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">잔액 추이 (년도별)</div>
+        <canvas id="cp-chart" aria-label="복리 성장 그래프"></canvas>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat primary">
+        <div class="stat-lbl">최종 금액</div>
+        <div class="stat-val" id="cp-v-final">—</div>
+        <div class="stat-note">원금 + 복리 이자</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">총 이자</div>
+        <div class="stat-val" id="cp-v-interest">—</div>
+        <div class="stat-note">복리 이자 합계</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">총 수익률</div>
+        <div class="stat-val" id="cp-v-rate">—</div>
+        <div class="stat-note">원금 대비 수익</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 이자 패널 -->
+  <div class="panel hidden" id="panel-interest" role="tabpanel">
+    <div class="card">
+      <div class="form-body">
+        <div class="field">
+          <label class="field-lbl" for="si-principal">원금</label>
+          <input class="inp" id="si-principal" type="text" inputmode="decimal" placeholder="₩ 원금">
+        </div>
+        <div class="field">
+          <label class="field-lbl" for="si-rate">연이율 (%)</label>
+          <input class="inp" id="si-rate" type="text" inputmode="decimal" placeholder="예: 3.5">
+        </div>
+        <div class="field span-2">
+          <label class="field-lbl" for="si-months">예치 기간</label>
+          <div class="period-row">
+            <input class="inp" id="si-months" type="text" inputmode="decimal" placeholder="개월 수 입력">
+            <span class="period-unit">개월</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-4">
+      <div class="stat primary">
+        <div class="stat-lbl">세후 수령액</div>
+        <div class="stat-val" id="si-v-final">—</div>
+        <div class="stat-note">원금 + 세후 이자</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">세전 이자</div>
+        <div class="stat-val" id="si-v-gross">—</div>
+        <div class="stat-note">원금 × 이율 × 기간</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">이자 세금</div>
+        <div class="stat-val" id="si-v-tax">—</div>
+        <div class="stat-note">이자소득세 15.4%</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">세후 이자</div>
+        <div class="stat-val" id="si-v-net">—</div>
+        <div class="stat-note">실수령 이자</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 광고 슬롯 하단 -->
+  <div class="ad-slot" id="ad-bottom">
+    <!-- 광고 코드 삽입 위치 -->
+  </div>
+
+</div>
+
+<script>
+function parse(s) {
+  return parseFloat(String(s).replace(/,/g, '')) || 0;
+}
+
+function fmtNum(n) {
+  if (!isFinite(n) || n === 0) return null;
+  const a = Math.abs(n);
+  if (a >= 1e12) return (n/1e12).toLocaleString('ko-KR', {maximumFractionDigits:1}) + '조';
+  if (a >= 1e8)  return (n/1e8).toLocaleString('ko-KR',  {maximumFractionDigits:2}) + '억';
+  if (Number.isInteger(n)) return n.toLocaleString('ko-KR');
+  if (a >= 1000) return n.toLocaleString('ko-KR', {maximumFractionDigits:2});
+  return n.toLocaleString('ko-KR', {maximumFractionDigits:6});
+}
+
+function fmtCompact(n) {
+  if (n >= 1e12) return (n/1e12).toFixed(1) + '조';
+  if (n >= 1e8)  return (n/1e8).toFixed(1)  + '억';
+  if (n >= 1e4)  return (n/1e4).toFixed(0)  + '만';
+  return n.toLocaleString('ko-KR', {maximumFractionDigits:0});
+}
+
+function fmtPct(n) {
+  return n.toLocaleString('ko-KR', {maximumFractionDigits:2}) + '%';
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (val == null) {
+    el.textContent = '—';
+    el.classList.add('empty');
+  } else {
+    el.textContent = val;
+    el.classList.remove('empty');
+  }
+}
+
+function cssVar(n) {
+  return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+}
+
+function hexToRgb(hex) {
+  const h = hex.replace('#','');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+
+/* 탭 전환 */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected','false');
+    });
+    document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected','true');
+    const panel = document.getElementById('panel-' + btn.dataset.tab);
+    panel.classList.remove('hidden');
+    if (btn.dataset.tab === 'compound') requestAnimationFrame(cpDraw);
+  });
+});
+
+/* 평단가 */
+let avgUid = 0;
+
+function avgAddRow(pv, qv) {
+  const id = ++avgUid;
+  const div = document.createElement('div');
+  div.className = 'row';
+  div.dataset.id = id;
+  div.innerHTML =
+    `<input class="inp inp-p" type="text" inputmode="decimal" placeholder="₩ 단가" value="${pv??''}" aria-label="매수 단가">` +
+    `<input class="inp inp-q" type="text" inputmode="decimal" placeholder="수량"   value="${qv??''}" aria-label="수량">` +
+    `<button class="btn-del" onclick="avgDelRow(${id})" aria-label="이 행 삭제">` +
+      `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 2.5l8 8M10.5 2.5l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>` +
+    `</button>`;
+  div.querySelectorAll('.inp').forEach(el => el.addEventListener('input', avgCalc));
+  document.getElementById('avg-entries').appendChild(div);
+  avgCalc();
+}
+
+function avgDelRow(id) {
+  document.querySelector(`#avg-entries .row[data-id="${id}"]`)?.remove();
+  avgCalc();
+}
+
+function avgReset() {
+  document.getElementById('avg-entries').innerHTML = '';
+  avgUid = 0;
+  avgAddRow(); avgAddRow();
+  document.querySelector('#panel-avg .inp')?.focus();
+}
+
+function avgCalc() {
+  let amt = 0, qty = 0;
+  document.querySelectorAll('#avg-entries .row').forEach(r => {
+    const p = parse(r.querySelector('.inp-p').value);
+    const q = parse(r.querySelector('.inp-q').value);
+    amt += p * q;
+    qty += q;
+  });
+  const avg = qty > 0 ? amt / qty : 0;
+  setVal('avg-v-avg',   qty > 0 ? fmtNum(avg) : null);
+  setVal('avg-v-total', qty > 0 ? fmtNum(amt) : null);
+  setVal('avg-v-qty',   qty > 0 ? fmtNum(qty) : null);
+}
+
+/* 복리 */
+let cpData = null;
+
+['cp-principal','cp-rate','cp-years','cp-freq'].forEach(id =>
+  document.getElementById(id).addEventListener('input', cpCalc)
+);
+
+function cpCalc() {
+  const P = parse(document.getElementById('cp-principal').value);
+  const r = parse(document.getElementById('cp-rate').value) / 100;
+  const t = parse(document.getElementById('cp-years').value);
+  const n = parse(document.getElementById('cp-freq').value);
+
+  if (!P || !r || !t || !n) {
+    cpData = null;
+    setVal('cp-v-final', null);
+    setVal('cp-v-interest', null);
+    setVal('cp-v-rate', null);
+    cpDraw();
+    return;
+  }
+
+  const A = P * Math.pow(1 + r/n, n*t);
+  const interest = A - P;
+  setVal('cp-v-final',    fmtNum(Math.round(A)));
+  setVal('cp-v-interest', fmtNum(Math.round(interest)));
+  setVal('cp-v-rate',     fmtPct(interest / P * 100));
+
+  const yrs = Math.min(Math.ceil(t), 100);
+  cpData = [];
+  for (let y = 0; y <= yrs; y++) {
+    cpData.push(P * Math.pow(1 + r/n, n * y));
+  }
+  cpDraw();
+}
+
+function cpDraw() {
+  const canvas = document.getElementById('cp-chart');
+  if (!canvas) return;
+  if (!cpData || cpData.length < 2) {
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth * (window.devicePixelRatio||1);
+    canvas.height = 140 * (window.devicePixelRatio||1);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    return;
+  }
+
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = canvas.offsetWidth || 560;
+  const cssH = 140;
+  canvas.width  = cssW * dpr;
+  canvas.height = cssH * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const W = cssW, H = cssH;
+  const pad = { t:16, r:14, b:28, l:62 };
+
+  const accent    = cssVar('--accent')     || '#6365F1';
+  const textMuted = cssVar('--text-muted') || '#545468';
+  const borderClr = cssVar('--border')     || '#22222E';
+
+  const maxV = Math.max(...cpData);
+  const minV = cpData[0];
+  const range = maxV - minV || 1;
+
+  const px = i => pad.l + i * (W - pad.l - pad.r) / (cpData.length - 1);
+  const py = v => H - pad.b - (v - minV) / range * (H - pad.t - pad.b);
+
+  ctx.strokeStyle = borderClr;
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 3; i++) {
+    const yy = pad.t + (H - pad.t - pad.b) / 3 * i;
+    ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(W - pad.r, yy); ctx.stroke();
+  }
+
+  try {
+    const [ar,ag,ab] = hexToRgb(accent);
+    const grad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
+    grad.addColorStop(0, `rgba(${ar},${ag},${ab},0.22)`);
+    grad.addColorStop(1, `rgba(${ar},${ag},${ab},0)`);
+    ctx.beginPath();
+    ctx.moveTo(px(0), py(cpData[0]));
+    cpData.forEach((v,i) => { if(i>0) ctx.lineTo(px(i), py(v)); });
+    ctx.lineTo(px(cpData.length-1), H - pad.b);
+    ctx.lineTo(px(0), H - pad.b);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+  } catch(e) {}
+
+  ctx.beginPath();
+  ctx.moveTo(px(0), py(cpData[0]));
+  cpData.forEach((v,i) => { if(i>0) ctx.lineTo(px(i), py(v)); });
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 1.8;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  ctx.font = `11px Inter, -apple-system, sans-serif`;
+  ctx.fillStyle = textMuted;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(fmtCompact(maxV), pad.l - 6, pad.t);
+  ctx.fillText(fmtCompact(minV), pad.l - 6, H - pad.b);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  const total = cpData.length - 1;
+  const xPts = total <= 10
+    ? Array.from({length: total+1}, (_,i) => i)
+    : [0, Math.round(total/4), Math.round(total/2), Math.round(total*3/4), total];
+  const seen = new Set();
+  xPts.forEach(i => {
+    if (seen.has(i)) return; seen.add(i);
+    ctx.fillText(i + '년', px(i), H - 4);
+  });
+}
+
+window.addEventListener('resize', () => {
+  if (!document.getElementById('panel-compound').classList.contains('hidden')) cpDraw();
+});
+
+/* 이자 */
+['si-principal','si-rate','si-months'].forEach(id =>
+  document.getElementById(id).addEventListener('input', siCalc)
+);
+
+function siCalc() {
+  const P = parse(document.getElementById('si-principal').value);
+  const r = parse(document.getElementById('si-rate').value) / 100;
+  const m = parse(document.getElementById('si-months').value);
+
+  if (!P || !r || !m) {
+    ['si-v-final','si-v-gross','si-v-tax','si-v-net'].forEach(id => setVal(id, null));
+    return;
+  }
+
+  const gross = P * r * (m / 12);
+  const tax   = Math.floor(gross * 0.154);
+  const net   = gross - tax;
+  const final = P + net;
+
+  setVal('si-v-final', fmtNum(Math.round(final)));
+  setVal('si-v-gross', fmtNum(Math.round(gross)));
+  setVal('si-v-tax',   fmtNum(tax));
+  setVal('si-v-net',   fmtNum(Math.round(net)));
+}
+
+/* 초기화 */
+avgAddRow(); avgAddRow(); avgCalc();
+</script>
+
+</body>
+</html>
